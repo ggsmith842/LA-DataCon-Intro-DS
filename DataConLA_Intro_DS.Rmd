@@ -1,0 +1,157 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r,message=FALSE}
+library(tidyverse)
+library(caret)
+library(rpart)
+```
+
+```{r,message=FALSE}
+data <- read_csv('Machine Learning Loan Default Dataset.csv')
+```
+
+```{r}
+data %>% summary()
+```
+```{r}
+#fix dtypes for  categorical variables
+data<-data %>%  mutate_at(vars(Gender,Married,Education,Dependents,Self_Employed,Property_Area,Loan_Status,Credit_History),
+            list(factor))
+```
+
+```{r}
+data %>% summary()
+```
+
+```{r}
+#replace missing values
+data<-data %>% replace_na(list(Gender='Female',Married='Yes',Dependents='0',
+                     Self_Employed='No',ApplicantIncome=5403,
+                     LoanAmount=146.4,Loan_Amount_Term=342,Credit_History='1'))
+```
+
+
+```{r}
+data %>% summary()
+```
+
+```{r}
+p<- ggplot(data,aes(CoapplicantIncome,LoanAmount)) + geom_point()
+
+p + facet_grid(rows=vars(Gender))
+```
+
+```{r}
+ggplot(data,aes(fill=Gender)) + geom_bar(aes(Loan_Status))
+```
+
+```{r}
+data %>% names()
+data<-data %>% select(Gender:Loan_Status)
+```
+
+```{r}
+library(mltools)
+```
+
+```{r}
+encode_data<-one_hot(data.table::data.table(data))
+cor_matrix<-cor(encode_data)
+
+high_cor <- findCorrelation(cor_matrix,cutoff=0.50)
+
+cor_featues<-encode_data %>% names() %>% as.vector()
+cor_featues[high_cor]
+```
+```{r}
+
+```
+
+
+Fit logistic regression model to predict Loan_Status
+```{r}
+big.logit<-glm(Loan_Status~Married+Dependents+Gender+Credit_History+LoanAmount+
+               Education+Property_Area+Self_Employed,data = data,family=binomial(link=logit))
+```
+
+```{r}
+summary(big.logit)
+```
+
+```{r}
+small.logit<-glm(Loan_Status~Married+Credit_History+LoanAmount+
+              Property_Area,data = data,family=binomial(link=logit))
+```
+
+```{r}
+summary(small.logit)
+```
+
+
+## Decision Tree
+
+
+```{r}
+data %>% nrow()*.75
+train <- sample(1:nrow(data),size=461)
+X_train <- data[train,-12]
+y_train <-data[train,12]
+test <- data[-train,]
+X_test <- data[-train,-12]
+y_test <- data[-train,12]
+
+Train <- data[train,]
+Test <- data[-train,]
+```
+
+
+```{r}
+fit <- rpart(Loan_Status~.,data = Train,method='class')
+```
+
+```{r}
+printcp(fit)
+plotcp(fit)
+```
+
+```{r}
+pred <- predict(object=fit,Test[-12],type='class')
+t<-table(Test$Loan_Status,pred)
+```
+
+```{r}
+accuracy<-t %>% diag() %>% sum() / sum(t)
+```
+
+
+```{r}
+#precision
+#percent correctly classified as needing a loan out of all who actually had a loan.
+precision<-t[2,2]/sum(t[2,])
+```
+
+```{r}
+#sensitivity
+#percent that needed a loan and actually got a loan 
+sensitivity<-t[2,2]/sum(t[2,])
+```
+
+```{r}
+#specificity
+#percent that did not need a loan and didn't get predicted to need a loan
+specificity<-t[1,1]/sum(t[1,])
+```
+
+```{r}
+results <- c(accuracy,precision,sensitivity,specificity)
+names(results) <- c('Accuracy','Precision','Sensitivity','Specificity')
+results
+```
+
