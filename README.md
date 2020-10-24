@@ -28,6 +28,6 @@ Dataset is mixed with both numeric and categorical data.
 
  * Decision Tree
    
-|Accuracy   | Preecision   |  Sensitivity  | Specificity  | 
+|Accuracy   | Precision   |  Sensitivity  | Specificity  | 
 |-----------|--------------|---------------|--------------|
 | 0.8366013  |  0.9339623 | 0.9339623  | 0.6170213  | 
