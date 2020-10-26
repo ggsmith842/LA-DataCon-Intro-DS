@@ -1,4 +1,4 @@
-### LA-DataCon-Intro-DS
+### Loan Prediction Model
 A small tutorial given at LA DataCon on a basic Data Science. The tutorial was done in python but I wanted to try to do it in R.
 
 What happened and why it happened is what Data Analysis amounts to. <br>
@@ -31,3 +31,7 @@ Dataset is mixed with both numeric and categorical data.
 |Accuracy   | Precision   |  Sensitivity  | Specificity  | 
 |-----------|--------------|---------------|--------------|
 | 0.8366013  |  0.9339623 | 0.9339623  | 0.6170213  | 
+
+
+*References*
+- Intro to Data Science, LA DataCon, Zia Khan
